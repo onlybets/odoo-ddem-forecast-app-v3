@@ -44,15 +44,7 @@ Follow these step-by-step instructions to get the Odoo CSTD Forecast application
 4. Click on the "Cog" button and select "Spreadsheet" ->"Insert list in spreadsheet" -> "Blank spreadsheet" -> "Confirm"
 5. Download the XLSX file to your computer. "File" -> "Download"
 
-📥 Step 2: Import Subscription Data
-
-1. In the Odoo CSTD Forecast application, click on the "Settings" tab
-2. In the "Import from Excel" section, click the "Choose File" button
-3. Select the XLSX file you downloaded from Odoo
-4. Click the "Import" button
-5. Wait for the confirmation message that the import was successful
-
-#### Required Columns in XLSX File
+#### ⚠️ Required Columns in XLSX File
 
 The imported XLSX file must contain the following columns (the order doesn't matter):
 
@@ -63,6 +55,14 @@ The imported XLSX file must contain the following columns (the order doesn't mat
 - **Subscription Status** - Current status of the subscription
 
 > **Important**: The XLSX import is typically only needed for the initial setup. For subsequent changes, use the application's interface to add, edit, or delete clients and their subscriptions through the respective tabs (Clients, Renewals, Upsells, etc.).
+
+📥 Step 2: Import Subscription Data
+
+1. In the Odoo CSTD Forecast application, click on the "Settings" tab
+2. In the "Import from Excel" section, click the "Choose File" button
+3. Select the XLSX file you downloaded from Odoo
+4. Click the "Import" button
+5. Wait for the confirmation message that the import was successful
 
 ## 💻 Using the Application
 
