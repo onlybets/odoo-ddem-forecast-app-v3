@@ -1436,73 +1436,154 @@ function getQuarterLabel(monthKey) {
 function handleFile(file) {
   const reader = new FileReader();
   reader.onload = function(e) {
-    const arrayBuffer = e.target.result;
-    const workbook = new ExcelJS.Workbook();
-    workbook.xlsx.load(arrayBuffer).then(function(wb) {
-      // Ajout d'une ligne client vierge à l'index 0 pour contrer le bug avec le record 0
-      clients.unshift({
-        clientName: "no client",
-        plan: "",
-        hosting: "",
-        amount: 0,
-        currency: "USD",
-        frequency: "",
-        users: 0,
-        nextRenewalDate: "",
-        status: "",
-        odooLink: ""
-      });
-      const ws = wb.worksheets[0];
-      ws.eachRow({ includeEmpty: false }, function(row, rowNumber) {
-        if (rowNumber === 1) return; // skip header
-        const cName = row.getCell(2).value ? row.getCell(2).value.toString().trim() : "";
-        const nextInv = row.getCell(3).value ? formatDate(row.getCell(3).value) : "";
-        const totRecCell = row.getCell(9);
-        const totRecRaw = totRecCell.value;
-        const planVal = row.getCell(10).value ? row.getCell(10).value.toString().trim() : "";
-        const statusVal = row.getCell(11).value ? row.getCell(11).value.toString().trim() : "In Progress";
-        const parsed = parseCurrencyAndAmount(totRecRaw, totRecCell);
-        const freq = parseFrequency(planVal);
-        const clientObj = {
-          clientName: cName,
+    const data = new Uint8Array(e.target.result);
+    try {
+      const wb = new ExcelJS.Workbook();
+      wb.xlsx.load(data).then(function() {
+        // Ajout d'une ligne client vierge à l'index 0 pour contrer le bug avec le record 0
+        clients = [];
+        clients.push({
+          clientName: "no client",
           plan: "",
           hosting: "",
-          amount: parsed.amount,
-          currency: parsed.currency || "USD",
-          frequency: freq,
+          amount: 0,
+          currency: "USD",
+          frequency: "",
           users: 0,
-          nextRenewalDate: nextInv || "",
-          status: statusVal,
+          nextRenewalDate: "",
+          status: "",
           odooLink: ""
-        };
-        convertAmount(clientObj.amount, clientObj.currency, function(converted, rate) {
-          clientObj.convertedAmount = converted;
-          clientObj.conversionRate = rate;
-          clients.push(clientObj);
         });
-      });
-      setTimeout(function() {
-        saveData();
-        renderClientTable();
-        refreshClientSelects();
+        
+        const ws = wb.worksheets[0];
+        
+        // Initialize column mapping with default null values
+        const columnMap = {
+          customerIndex: null,
+          nextInvoiceIndex: null,
+          totalRecurringIndex: null,
+          recurringPlanIndex: null,
+          statusIndex: null
+        };
+        
+        // Read header row to identify column positions
+        if (ws.rowCount > 0) {
+          const headerRow = ws.getRow(1);
+          headerRow.eachCell({ includeEmpty: false }, function(cell, colNumber) {
+            const headerText = cell.value ? cell.value.toString().trim() : "";
+            
+            // Map column names to their indices
+            if (headerText.toLowerCase() === "customer") {
+              columnMap.customerIndex = colNumber;
+            } else if (headerText.toLowerCase() === "next invoice") {
+              columnMap.nextInvoiceIndex = colNumber;
+            } else if (headerText.toLowerCase() === "total recurring") {
+              columnMap.totalRecurringIndex = colNumber;
+            } else if (headerText.toLowerCase() === "recurring plan") {
+              columnMap.recurringPlanIndex = colNumber;
+            } else if (headerText.toLowerCase() === "subscription status") {
+              columnMap.statusIndex = colNumber;
+            }
+          });
+        }
+        
+        // Validate that all required columns were found
+        const missingColumns = [];
+        if (!columnMap.customerIndex) missingColumns.push("Customer");
+        if (!columnMap.nextInvoiceIndex) missingColumns.push("Next Invoice");
+        if (!columnMap.totalRecurringIndex) missingColumns.push("Total Recurring");
+        if (!columnMap.recurringPlanIndex) missingColumns.push("Recurring Plan");
+        if (!columnMap.statusIndex) missingColumns.push("Subscription Status");
+        
+        if (missingColumns.length > 0) {
+          Toastify({
+            text: `Import failed: Missing required columns: ${missingColumns.join(", ")}`,
+            duration: 5000,
+            gravity: "top",
+            position: "right",
+            backgroundColor: "#f44336"
+          }).showToast();
+          return;
+        }
+        
+        // Process data rows
+        ws.eachRow({ includeEmpty: false }, function(row, rowNumber) {
+          if (rowNumber === 1) return; // skip header
+          
+          // Extract data using the column mapping
+          const cName = row.getCell(columnMap.customerIndex).value ? 
+                        row.getCell(columnMap.customerIndex).value.toString().trim() : "";
+          
+          const nextInv = row.getCell(columnMap.nextInvoiceIndex).value ? 
+                         formatDate(row.getCell(columnMap.nextInvoiceIndex).value) : "";
+          
+          const totRecCell = row.getCell(columnMap.totalRecurringIndex);
+          const totRecRaw = totRecCell.value;
+          
+          const planVal = row.getCell(columnMap.recurringPlanIndex).value ? 
+                         row.getCell(columnMap.recurringPlanIndex).value.toString().trim() : "";
+          
+          const statusVal = row.getCell(columnMap.statusIndex).value ? 
+                           row.getCell(columnMap.statusIndex).value.toString().trim() : "In Progress";
+          
+          // Only process rows with valid customer name and total recurring value
+          if (cName && totRecRaw) {
+            const parsed = parseCurrencyAndAmount(totRecRaw, totRecCell);
+            const freq = parseFrequency(planVal);
+            
+            const clientObj = {
+              clientName: cName,
+              plan: "",
+              hosting: "",
+              amount: parsed.amount,
+              currency: parsed.currency || "USD",
+              frequency: freq,
+              users: 0,
+              nextRenewalDate: nextInv || "",
+              status: statusVal,
+              odooLink: ""
+            };
+            
+            convertAmount(clientObj.amount, clientObj.currency, function(converted, rate) {
+              clientObj.convertedAmount = converted;
+              clientObj.conversionRate = rate;
+              clients.push(clientObj);
+            });
+          }
+        });
+        
+        setTimeout(function() {
+          saveData();
+          renderClientTable();
+          refreshClientSelects();
+          Toastify({
+            text: `Import completed. ${clients.length - 1} clients imported.`,
+            duration: 3000,
+            gravity: "top",
+            position: "right",
+            backgroundColor: "#4caf50"
+          }).showToast();
+          updateDashboard();
+        }, 300);
+      }).catch(function(err) {
         Toastify({
-          text: "Import completed.",
+          text: "Error loading Excel: " + err,
           duration: 3000,
           gravity: "top",
           position: "right",
-          backgroundColor: "#4caf50"
+          backgroundColor: "#f44336"
         }).showToast();
-        updateDashboard();
-      }, 300);
-    }).catch(function(err) {
+      });
+    } catch (error) {
+      console.error("Error importing Excel file:", error);
       Toastify({
-        text: "Error loading Excel: " + err,
+        text: "Error importing Excel file: " + error.message,
         duration: 3000,
         gravity: "top",
         position: "right",
         backgroundColor: "#f44336"
       }).showToast();
-    });
+    }
   };
   reader.readAsArrayBuffer(file);
 }
