@@ -1,4 +1,19 @@
+<div align="center">
+
 # 💰 Odoo CSTD Forecast Application
+
+[![macOS](https://img.shields.io/badge/macOS-compatible-brightgreen?logo=apple&logoColor=white)](https://www.apple.com/macos/)
+[![Windows](https://img.shields.io/badge/Windows-compatible-brightgreen?logo=windows&logoColor=white)](https://www.microsoft.com/windows/)
+[![Linux](https://img.shields.io/badge/Linux-compatible-brightgreen?logo=linux&logoColor=white)](https://www.linux.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Odoo](https://img.shields.io/badge/Powered_by-Odoo-875A7B?logo=odoo&logoColor=white)](https://www.odoo.com)
+
+</div>
+
+> **Note**: This is an unofficial tool and is not affiliated with or endorsed by Odoo S.A.
+
+---
+
 
 A comprehensive tool for tracking and forecasting Odoo subscriptions, renewals, upsells, and success packs. This application runs locally in your browser without requiring any server setup.
 
@@ -64,7 +79,7 @@ The application is organized into several tabs, each with specific functionality
 - Tracks upsell performance and contribution to targets
 - Allows adding and editing upsell information
 
-🎯 Success Packs Tab
+⭐️ Success Packs Tab
 
 - Manages success pack sales and renewals
 - Tracks performance against success pack targets
