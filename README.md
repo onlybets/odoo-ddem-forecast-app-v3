@@ -48,11 +48,11 @@ Follow these step-by-step instructions to get the Odoo CSTD Forecast application
 
 The imported XLSX file must contain the following columns (the order doesn't matter):
 
-- **Customer** - Client name
-- **Next Invoice** - Next renewal date
-- **Total Recurring** - Total recurring amount with currency symbol
-- **Recurring Plan** - Subscription frequency (Monthly, Yearly, etc.)
-- **Subscription Status** - Current status of the subscription
+- Client name
+- Next renewal date
+- Total rec amount with currency symbol
+- Subscription frequency
+- Current status of the subscription
 
 > **Important**: The XLSX import is typically only needed for the initial setup. For subsequent changes, use the application's interface to add, edit, or delete clients and their subscriptions through the respective tabs (Clients, Renewals, Upsells, etc.).
 
