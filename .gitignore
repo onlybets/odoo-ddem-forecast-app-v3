@@ -1,0 +1,80 @@
+# Fichiers système d'exploitation
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Fichiers d'éditeurs de code
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Dossiers de dépendances
+node_modules/
+bower_components/
+
+# Fichiers de build et de dépendances
+/dist
+/build
+*.log
+
+# Fichiers de configuration locaux
+.env
+.env.local
+.env.*.local
+
+# Fichiers de cache
+.cache/
+.temp/
+.tmp/
+
+# Fichiers temporaires système
+*~
+*.tmp
+*.bak
+*.swp
+*~.nib
+
+# Fichiers de débogage
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Fichiers de l'éditeur (Visual Studio Code)
+.history/
+*.code-workspace
+
+# Fichiers de déploiement
+*.pem
+*.p12
+*.key
+*.crt
+*.cer
+
+# Fichiers de sauvegarde
+*.bak
+*.swp
+*~.nib
+
+# Fichiers de test
+coverage/
+.nyc_output/
+
+# Fichiers de cache des navigateurs
+.htaccess
+
+# Fichiers de configuration personnelle
+*.sublime-project
+*.sublime-workspace
+
+# Fichiers de l'IDE
+.idea/
+*.sublime-*

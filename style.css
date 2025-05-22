@@ -1,0 +1,166 @@
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: sans-serif;
+}
+
+body {
+  background-color: #f4f4f4;
+  color: #333;
+  padding: 20px;
+}
+
+/* Header */
+header {
+  margin-bottom: 20px;
+}
+header h1 {
+  font-size: 1.5rem;
+}
+
+/* Tab content */
+.tab-content {
+  display: none;
+}
+.tab-content.active {
+  display: block;
+  background-color: #fff;
+  padding: 20px;
+  border: 1px solid #ccc;
+}
+
+/* Tables */
+.table {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+/* Modal override */
+.modal .modal-dialog {
+  max-width: 600px;
+}
+
+/* Minimal styling for action buttons in tables */
+#clientTableBody .btn-warning,
+#clientTableBody .btn-danger,
+#upsellTableBody .btn-warning,
+#upsellTableBody .btn-danger,
+#successPackTableBody .btn-warning,
+#successPackTableBody .btn-danger,
+#renewTableBody .btn-warning,
+#renewTableBody .btn-danger,
+#clientTableBody .btn-success {
+  background-color: transparent;
+  border: none;
+}
+
+/* Settings tab */
+#settings .form-group.border {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.threnew {
+  text-decoration: underline;
+}
+
+#clientTableBody .btn-success {
+  font-size: 1rem;
+}
+
+#monthlyPerformanceAccordion .card-header {
+  padding: 0rem 1.25rem;
+}
+
+#clientAccordion .card-header {
+  padding: 0rem 1.25rem;
+}
+
+.gauge {
+  position: relative;
+  width: 200px;
+  height: 100px;
+  margin: 0 auto;
+  margin-bottom: 10px;
+}
+
+.gauge-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: conic-gradient(from 180deg, #FF5252, #FF5252 75deg, #088F8F 150deg, #50C878 250deg);
+  clip-path: polygon(0% 0%, 100% 0%, 100% 50%, 0% 50%);
+}
+
+.needle, .needle-forecast {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  height: 90px;
+  background: black;
+  transform-origin: bottom center;
+  transition: transform 1s ease-in-out;
+}
+
+.needle-forecast {
+  /*opacity: 0.01;*/
+  display: none;
+}
+
+.gauge-center {
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  background: black;
+  border-radius: 50%;
+  transform: translateX(-50%);
+}
+
+.gauge-label {
+  position: absolute;
+  font-size: 12px;
+}
+
+.gauge-label.left {
+  bottom: 10px;
+  left: 10px;
+  display: none;
+}
+
+.gauge-label.top {
+  top: 0px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: whitesmoke;
+}
+
+.gauge-label.right {
+  bottom: 10px;
+  right: 10px;
+  display: none;
+}
+
+.ui-autocomplete {
+  z-index: 1060 !important;
+}
+
+
+.dashbord-forecast-line {
+  font-size: 0.9rem;
+  opacity: 0.5;
+}
+
+.dashbord-current-line {
+  font-size: 2rem;
+  font-weight: bold;
+}

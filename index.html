@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Odoo CSTD Forecast</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css" />
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <!-- jQuery UI CSS for autocomplete -->
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <!-- Toastify CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  <!-- ExcelJS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- jQuery UI -->
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <!-- Bootstrap Bundle JS (includes Popper) -->
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+  <!-- Toastify JS -->
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <!-- JS script -->
+  <script src="script.js"></script>
+</head>
+<body>
+  <div class="container-fluid">
+    <!-- Header -->
+    <header class="row mb-3">
+      <div class="col-sm-6 d-flex align-items-center">
+        <h1>💰 Odoo CSTD Forecast</h1>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav>
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <a class="nav-link active" data-tab="dashboard" href="#">Dashboard</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-tab="clients" href="#">Clients</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-tab="renews" href="#">Renewals</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-tab="upsells" href="#">Upsells</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-tab="successpacks" href="#">Success Packs</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-tab="targets" href="#">Targets</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-tab="settings" href="#">Settings</a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- DASHBOARD TAB -->
+    <section id="dashboard" class="tab-content active mt-3">
+      <!-- Performance by Month (Accordion) -->
+      <div class="row mb-3">
+        <div class="col-12">
+          <h4>Performance by Month</h4>
+          <div id="monthlyPerformanceAccordion"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CLIENTS TAB -->
+    <section id="clients" class="tab-content mt-3" style="display:none;">
+      <div class="row mb-3">
+        <div class="col-md-12">
+          <div class="d-flex justify-content-end align-items-center">
+            <button id="addClientBtn" class="btn btn-success">Add Client</button>
+          </div>
+        </div>
+      </div>
+      <!-- Table Clients -->
+      <div class="row">
+        <div class="col-md-12">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <tbody id="clientTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RENEWS TAB -->
+    <section id="renews" class="tab-content mt-3" style="display:none;">
+      <div class="row">
+        <!-- Full-width Renew List -->
+        <div class="col-md-12 mb-3">
+          <div class="card">
+            <div class="card-body">
+              <h4 class="card-title">Renew List</h4>
+              <!-- Bouton d'ajustement de target en haut à droite -->
+              <div style="text-align: right; margin-bottom: 10px;">
+                <button id="adjustTargetBtn" class="btn btn-secondary btn-sm">Adjust Target</button>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th>Client</th>
+                      <th>Plan</th>
+                      <th>Hosting</th>
+                      <th>Original Amount</th>
+                      <th>Converted Amount</th>
+                      <th>Added to Target</th>
+                      <th>Frequency</th>
+                      <th>Users</th>
+                      <th>Renewed</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="renewTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- UPSELLS TAB -->
+    <section id="upsells" class="tab-content mt-3" style="display:none;">
+      <div class="row mb-3">
+        <div class="col-md-12">
+          <div class="d-flex justify-content-end align-items-center">
+            <button id="addUpsellBtn" class="btn btn-success">Add Upsell</button>
+          </div>
+        </div>
+      </div>
+      <!-- Table Upsells -->
+      <div class="row">
+        <div class="col-md-12">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Client</th>
+                  <th>Description</th>
+                  <th>Original Amount</th>
+                  <th>Converted Amount</th>
+                  <th>Added to Target</th>
+                  <th>Frequency</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="upsellTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- UPSell MODAL (for adding new upsell) -->
+    <div id="upsellModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="upsellModalTitle" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="upsellModalTitle">Add New Upsell</h5>
+            <button type="button" class="close closeModal" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="upsellForm">
+              <div class="form-group">
+                <label for="upsellClientInput">Client</label>
+                <input type="text" id="upsellClientInput" class="form-control" placeholder="Search client..." />
+                <input type="hidden" id="upsellClientIndex" />
+              </div>
+              <div class="form-group">
+                <label for="upsellDescription">Description</label>
+                <input type="text" id="upsellDescription" class="form-control" />
+              </div>
+              <div class="form-group">
+                <label for="upsellAmount">Amount</label>
+                <input type="number" id="upsellAmount" class="form-control" step="0.01" />
+              </div>
+              <div class="form-group">
+                <label for="upsellCurrency">Currency</label>
+                <select id="upsellCurrency" class="form-control"></select>
+              </div>
+              <div class="form-group">
+                <label for="upsellFrequency">Frequency</label>
+                <select id="upsellFrequency" class="form-control">
+                  <option value="Monthly">Monthly</option>
+                  <option value="Yearly (1)">1 Year</option>
+                  <option value="Yearly (2)">2 Years</option>
+                  <option value="Yearly (3)">3 Years</option>
+                  <option value="Yearly (4)">4 Years</option>
+                  <option value="Yearly (5)">5 Years</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="upsellDate">Date</label>
+                <input type="date" id="upsellDate" class="form-control" />
+              </div>
+              <button type="submit" id="saveUpsellBtn" class="btn btn-primary">Save</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- UPSell EDIT MODAL (for editing existing upsell) -->
+    <div id="upsellEditModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="upsellEditModalTitle" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="upsellEditModalTitle">Edit Upsell</h5>
+            <button type="button" class="close closeModal" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="upsellEditForm">
+              <div class="form-group">
+                <label for="editUpsellClientInput">Client</label>
+                <input type="text" id="editUpsellClientInput" class="form-control" placeholder="Search client..." />
+                <input type="hidden" id="editUpsellClientIndex" />
+              </div>
+              <div class="form-group">
+                <label for="editUpsellDescription">Description</label>
+                <input type="text" id="editUpsellDescription" class="form-control" />
+              </div>
+              <div class="form-group">
+                <label for="editUpsellAmount">Amount</label>
+                <input type="number" id="editUpsellAmount" class="form-control" step="0.01" />
+              </div>
+              <div class="form-group">
+                <label for="editUpsellCurrency">Currency</label>
+                <select id="editUpsellCurrency" class="form-control"></select>
+              </div>
+              <div class="form-group">
+                <label for="editUpsellFrequency">Frequency</label>
+                <select id="editUpsellFrequency" class="form-control">
+                  <option value="Monthly">Monthly</option>
+                  <option value="Yearly (1)">1 Year</option>
+                  <option value="Yearly (2)">2 Years</option>
+                  <option value="Yearly (3)">3 Years</option>
+                  <option value="Yearly (4)">4 Years</option>
+                  <option value="Yearly (5)">5 Years</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="editUpsellDate">Date</label>
+                <input type="date" id="editUpsellDate" class="form-control" />
+              </div>
+              <div class="form-group">
+                <label for="editUpsellAddedToTarget">Added to Target</label>
+                <input type="number" id="editUpsellAddedToTarget" class="form-control" step="0.01" />
+              </div>
+              <button type="submit" id="updateUpsellBtn" class="btn btn-primary">Update</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUCCESS PACKS TAB -->
+    <section id="successpacks" class="tab-content mt-3" style="display:none;">
+      <div class="row">
+        <!-- Left: Form (50%) -->
+        <div class="col-md-4 mb-3">
+          <div class="card">
+            <div class="card-body">
+              <h4 class="card-title">Add Success Pack (Non-Recurring)</h4>
+              <div class="form-group">
+                <label for="successPackClientInput">Client</label>
+                <input type="text" id="successPackClientInput" class="form-control" placeholder="Search client..." />
+                <input type="hidden" id="successPackClientIndex" />
+              </div>
+              <div class="form-group">
+                <label for="successPackDescription">Description</label>
+                <input type="text" id="successPackDescription" class="form-control" />
+              </div>
+              <div class="form-group">
+                <label for="successPackAmount">Amount</label>
+                <input type="number" id="successPackAmount" class="form-control" step="0.01" />
+              </div>
+              <div class="form-group">
+                <label for="successPackCurrency">Currency</label>
+                <select id="successPackCurrency" class="form-control"></select>
+              </div>
+              <div class="form-group">
+                <label for="successPackDate">Date</label>
+                <input type="date" id="successPackDate" class="form-control" />
+              </div>
+              <button id="addSuccessPackBtn" class="btn btn-info">Add Success Pack</button>
+            </div>
+          </div>
+        </div>
+        <!-- Right: Table (50%) -->
+        <div class="col-md-8 mb-3">
+          <div class="card">
+            <div class="card-body">
+              <h4 class="card-title">Success Pack List</h4>
+              <div class="table-responsive">
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th>Client</th>
+                      <th>Description</th>
+                      <th>Original Amount</th>
+                      <th>Converted Amount</th>
+                      <th>Date</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="successPackTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TARGETS TAB -->
+    <section id="targets" class="tab-content mt-3" style="display:none;">
+      <div class="row mb-3">
+        <div class="col-md-12">
+          <div class="card">
+            <div class="card-body">
+              <h4 class="card-title">Edit Monthly Targets</h4>
+              <form id="targetForm">
+                <div class="form-group row">
+                  <label for="targetMonth" class="col-sm-2 col-form-label">Month</label>
+                  <div class="col-sm-10">
+                    <select id="targetMonth" class="form-control"></select>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="recurringTargetInput" class="col-sm-2 col-form-label">Recurring Target ($)</label>
+                  <div class="col-sm-10">
+                    <input type="number" id="recurringTargetInput" class="form-control" step="0.01" />
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="recurringForecastInput" class="col-sm-2 col-form-label">Recurring Forecast ($)</label>
+                  <div class="col-sm-10">
+                    <input type="number" id="recurringForecastInput" class="form-control" step="0.01" />
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="nonRecurringTargetInput" class="col-sm-2 col-form-label">Non-Recurring Target ($)</label>
+                  <div class="col-sm-10">
+                    <input type="number" id="nonRecurringTargetInput" class="form-control" step="0.01" />
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="nonRecurringForecastInput" class="col-sm-2 col-form-label">Non-Recurring Forecast ($)</label>
+                  <div class="col-sm-10">
+                    <input type="number" id="nonRecurringForecastInput" class="form-control" step="0.01" />
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <div class="col-sm-10 offset-sm-2">
+                    <button type="submit" id="saveTargetBtn" class="btn btn-primary">Save Target</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Yearly Targets Overview -->
+      <div class="row">
+        <div class="col-md-12">
+          <div class="card">
+            <div class="card-body">
+              <h4 class="card-title">Yearly Targets Overview</h4>
+              <div id="yearlyOverviewMsg">No data yet.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SETTINGS TAB -->
+    <section id="settings" class="tab-content mt-3" style="display:none;">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <h4 class="card-title">Settings</h4>
+                <button id="resetDataBtn" class="btn btn-danger">Reset Data</button>
+              </div>
+              <div class="form-group border p-3 mb-3">
+                <label for="importFile" class="mr-2">📬 Import XLSX:</label>
+                <input type="file" id="importFile" accept=".xlsx, .xls" />
+                <button id="importBtn" class="btn btn-primary btn-sm ml-2">Import File</button>
+              </div>
+              <div class="form-group border p-3 mb-3">
+                <label for="exportJson" class="mr-2">⬆️ Export JSON:</label>
+                <button id="exportJsonBtn" class="btn btn-primary btn-sm ml-2">Export Data</button>
+              </div>
+              <div class="form-group border p-3 mb-3">
+                <label for="importJson" class="mr-2">⬇️ Import JSON:</label>
+                <a href="import_json.html" class="btn btn-primary btn-sm ml-2">Go to import</a>
+              </div>
+              <div class="border p-3 mb-3">
+                <p>💲 All non-USD amounts are automatically converted to USD at the time of update.</p>
+              </div>
+              <div class="border p-3 mb-3">
+                <p>🔒 All data is processed locally on the computer; no data is sent to external servers.</p>
+              </div>
+              <div class="border p-3 mb-3">
+                <p>Odoo ©️ DDEM</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CLIENT MODAL -->
+    <div id="clientModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="clientModalTitle" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="clientModalTitle">Add New Client</h5>
+            <button type="button" class="close closeModal" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="clientForm">
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="clientName">Client Name</label>
+                  <input type="text" class="form-control" id="clientName" />
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="plan">Plan</label>
+                  <select id="plan" class="form-control">
+                    <option value="">-- Select --</option>
+                    <option value="Odoo Standard">Odoo Standard</option>
+                    <option value="Odoo Custom">Odoo Custom</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="hosting">Hosting</label>
+                  <select id="hosting" class="form-control">
+                    <option value="">-- Select --</option>
+                    <option value="Odoo Online">Odoo Online</option>
+                    <option value="Odoo SH">Odoo SH</option>
+                    <option value="Odoo On-Premise">Odoo On-Premise</option>
+                  </select>
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="amount">Subscription Amount</label>
+                  <input type="number" class="form-control" id="amount" step="0.01" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="frequency">Payment Frequency</label>
+                  <select id="frequency" class="form-control">
+                    <option value="">-- Select --</option>
+                    <option value="Monthly">Monthly</option>
+                    <option value="Yearly (1)">1 Year</option>
+                    <option value="Yearly (2)">2 Years</option>
+                    <option value="Yearly (3)">3 Years</option>
+                    <option value="Yearly (4)">4 Years</option>
+                    <option value="Yearly (5)">5 Years</option>
+                  </select>
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="users">Number of Users</label>
+                  <input type="number" class="form-control" id="users" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="currency">Currency</label>
+                  <select id="currency" class="form-control">
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="GBP">GBP</option>
+                    <!-- ... -->
+                  </select>
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="nextRenewalDate">Next Renewal Date</label>
+                  <input type="date" class="form-control" id="nextRenewalDate" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="status">Status</label>
+                  <select id="status" class="form-control">
+                    <option value="In Progress">In Progress</option>
+                    <option value="Paused">Paused</option>
+                    <option value="Churned">Churned</option>
+                  </select>
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="odooLink">Odoo Link</label>
+                  <input type="url" class="form-control" id="odooLink" />
+                </div>
+              </div>
+              <button type="submit" id="saveClientBtn" class="btn btn-primary">Save</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RENEW MODAL (for Renew from Clients) -->
+    <div id="renewModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="renewModalTitle" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="renewModalTitle">Renew Client</h5>
+            <button type="button" class="close closeModal" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="renewClientForm">
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="renewModalPlan">Plan</label>
+                  <select id="renewModalPlan" class="form-control">
+                    <option value="">-- Select --</option>
+                    <option value="Odoo Standard">Odoo Standard</option>
+                    <option value="Odoo Custom">Odoo Custom</option>
+                  </select>
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="renewModalHosting">Hosting</label>
+                  <select id="renewModalHosting" class="form-control">
+                    <option value="">-- Select --</option>
+                    <option value="Odoo Online">Odoo Online</option>
+                    <option value="Odoo SH">Odoo SH</option>
+                    <option value="Odoo On-Premise">Odoo On-Premise</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="renewModalAmount">Subscription Amount</label>
+                  <input type="number" class="form-control" id="renewModalAmount" step="0.01" />
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="renewModalFrequency">Payment Frequency</label>
+                  <select id="renewModalFrequency" class="form-control">
+                    <option value="Monthly">Monthly</option>
+                    <option value="Yearly (1)">1 Year</option>
+                    <option value="Yearly (2)">2 Years</option>
+                    <option value="Yearly (3)">3 Years</option>
+                    <option value="Yearly (4)">4 Years</option>
+                    <option value="Yearly (5)">5 Years</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="renewModalUsers">Number of Users</label>
+                  <input type="number" class="form-control" id="renewModalUsers" />
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="renewModalCurrency">Currency</label>
+                  <select id="renewModalCurrency" class="form-control"></select>
+                </div>
+              </div>
+              <button type="submit" id="saveRenewClientBtn" class="btn btn-primary">Renew</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RENEW EDIT MODAL (for editing from the Renew List) -->
+    <div id="renewEditModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="renewEditModalTitle" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="renewEditModalTitle">Edit Renew</h5>
+            <button type="button" class="close closeModal" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="renewEditForm">
+              <div class="form-group">
+                <label for="editRenewPlan">Plan</label>
+                <select id="editRenewPlan" class="form-control">
+                  <option value="">-- Select --</option>
+                  <option value="Odoo Standard">Odoo Standard</option>
+                  <option value="Odoo Custom">Odoo Custom</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="editRenewHosting">Hosting</label>
+                <select id="editRenewHosting" class="form-control">
+                  <option value="">-- Select --</option>
+                  <option value="Odoo Online">Odoo Online</option>
+                  <option value="Odoo SH">Odoo SH</option>
+                  <option value="Odoo On-Premise">Odoo On-Premise</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="editRenewAmount">Subscription Amount</label>
+                <input type="number" class="form-control" id="editRenewAmount" step="0.01" />
+              </div>
+              <div class="form-group">
+                <label for="editRenewCurrency">Currency</label>
+                <select id="editRenewCurrency" class="form-control"></select>
+              </div>
+              <div class="form-group">
+                <label for="editRenewFrequency">Payment Frequency</label>
+                <select id="editRenewFrequency" class="form-control">
+                  <option value="Monthly">Monthly</option>
+                  <option value="Yearly (1)">1 Year</option>
+                  <option value="Yearly (2)">2 Years</option>
+                  <option value="Yearly (3)">3 Years</option>
+                  <option value="Yearly (4)">4 Years</option>
+                  <option value="Yearly (5)">5 Years</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="editRenewUsers">Number of Users</label>
+                <input type="number" class="form-control" id="editRenewUsers" />
+              </div>
+              <div class="form-group">
+                <label for="editRenewDate">Renewed</label>
+                <input type="date" class="form-control" id="editRenewDate" />
+              </div>
+              <div class="form-group">
+                <label for="editRenewAddedToTarget">Added to Target</label>
+                <input type="number" class="form-control" id="editRenewAddedToTarget" step="0.01" />
+              </div>
+              <button id="updateRenewBtn" type="submit" class="btn btn-primary">Update Renew</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TARGET ADJUST MODAL -->
+    <div id="targetAdjustModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="targetAdjustModalTitle" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="targetAdjustModalTitle">Target Adjustment</h5>
+            <button type="button" class="close closeModal" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="targetAdjustForm">
+              <div class="form-group">
+                <label for="adjustDate">Date d'enregistrement</label>
+                <input type="date" class="form-control" id="adjustDate" required />
+              </div>
+              <div class="form-group">
+                <label for="adjustAmount">Add to Target</label>
+                <input type="number" class="form-control" id="adjustAmount" step="0.01" required />
+              </div>
+              <div class="form-group">
+                <label for="adjustDescription">Description</label>
+                <input type="text" class="form-control" id="adjustDescription" required />
+              </div>
+              <button type="submit" class="btn btn-primary">Save Adjustment</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
