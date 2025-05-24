@@ -41,34 +41,41 @@ function getConversionRates(callback) {
   if (storedRates && storedTimestamp && (now - parseInt(storedTimestamp, 10)) < 24 * 60 * 60 * 1000) {
     conversionRates = JSON.parse(storedRates);
     console.log("Using cached conversion rates");
-    callback();
+    if (callback) callback();
   } else {
-    $.getJSON("https://cdn.taux.live/api/latest.json")
-      .done(function(data) {
-        conversionRates = data.rates;
-        localStorage.setItem('conversionRates', JSON.stringify(conversionRates));
-        localStorage.setItem('conversionRatesTimestamp', now.toString());
-        console.log("New conversion rates loaded:", conversionRates);
-        Toastify({
-          text: "Exchange rates updated from taux.live",
-          duration: 3000,
-          gravity: "top",
-          position: "right",
-          backgroundColor: "#4caf50"
-        }).showToast();
-        callback();
-      })
-      .fail(function() {
-        Toastify({
-          text: "Failed to fetch conversion rates",
-          duration: 3000,
-          gravity: "top",
-          position: "right",
-          backgroundColor: "#f44336"
-        }).showToast();
-        callback();
-      });
+    fetchConversionRates(callback, false);
   }
+}
+
+function fetchConversionRates(callback, isAutomatic = false) {
+  $.getJSON("https://cdn.taux.live/api/latest.json")
+    .done(function(data) {
+      conversionRates = data.rates;
+      localStorage.setItem('conversionRates', JSON.stringify(conversionRates));
+      localStorage.setItem('conversionRatesTimestamp', Date.now().toString());
+      console.log("New conversion rates loaded:", conversionRates);
+      
+      // Afficher une notification
+      Toastify({
+        text: isAutomatic ? "Taux de change mis à jour automatiquement" : "Taux de change mis à jour",
+        duration: 3000,
+        gravity: "top",
+        position: "right",
+        backgroundColor: "#4caf50"
+      }).showToast();
+      
+      if (callback) callback();
+    })
+    .fail(function() {
+      Toastify({
+        text: "Échec de la mise à jour des taux de change",
+        duration: 3000,
+        gravity: "top",
+        position: "right",
+        backgroundColor: "#f44336"
+      }).showToast();
+      if (callback) callback();
+    });
 }
 
 /***********************************
@@ -132,6 +139,12 @@ $(document).ready(function() {
     loadSettings();
     populateMonthSelect();
     updateTargetInputs();
+    
+    // Démarrer le système d'export automatique périodique
+    setupAutomaticExport();
+    
+    // Démarrer le système de rafraîchissement automatique des taux de change
+    setupAutomaticRatesRefresh();
 
     $('.nav-link').click(function(e) {
       e.preventDefault();
@@ -288,31 +301,10 @@ $(document).ready(function() {
    * Export JSON
    ***********************************/
   $('#exportJsonBtn').click(function() {
-    const data = {
-      clients: clients,
-      upsells: upsells,
-      successPacks: successPacks,
-      renews: renews,
-      targets: targets,
-      settings: settings
-    };
-    const jsonData = JSON.stringify(data, null, 2);
-    const blob = new Blob([jsonData], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
+    // Export manuel - utilise le nom de fichier avec la date
     const today = new Date();
     const dateStr = today.toISOString().split('T')[0];
-    a.download = `odoo-cstd-export-${dateStr}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    Toastify({
-      text: "Données exportées en JSON",
-      duration: 3000,
-      gravity: "top",
-      position: "right",
-      backgroundColor: "#4caf50"
-    }).showToast();
+    exportDataToJson(`odoo-cstd-export-${dateStr}.json`, false);
   });
 
 });
@@ -1423,10 +1415,126 @@ function getQuarterMonths(monthKey) {
 // Retourne l'étiquette du trimestre (ex. "Q1 2023")
 function getQuarterLabel(monthKey) {
   const [year, month] = monthKey.split('-').map(Number);
-  if (month <= 3) return `Q1 ${year}`;
-  if (month <= 6) return `Q2 ${year}`;
-  if (month <= 9) return `Q3 ${year}`;
+  if (month >= 1 && month <= 3) return `Q1 ${year}`;
+  if (month >= 4 && month <= 6) return `Q2 ${year}`;
+  if (month >= 7 && month <= 9) return `Q3 ${year}`;
   return `Q4 ${year}`;
+}
+
+
+/***********************************
+ * Export automatique périodique
+ ***********************************/
+function setupAutomaticExport() {
+  // Première vérification immédiate
+  checkAndExportIfNeeded();
+  
+  // Configurer la vérification périodique (toutes les 24h)
+  const scheduleNextExport = function() {
+    const delay = 24 * 60 * 60 * 1000; // 24 heures en millisecondes
+    console.log(`Prochaine vérification d'export automatique programmée dans: ${delay/1000/60/60} heures`);
+    
+    setTimeout(function() {
+      checkAndExportIfNeeded();
+      scheduleNextExport(); // Programmer la prochaine vérification
+    }, delay);
+  };
+  
+  // Lancer le cycle
+  scheduleNextExport();
+}
+
+function checkAndExportIfNeeded() {
+  // Récupérer la date du dernier export automatique
+  const lastExportDate = localStorage.getItem('lastAutomaticExportDate');
+  const now = new Date();
+  
+  // Si aucun export n'a été fait ou si le dernier export date de plus de 24 heures
+  if (!lastExportDate || (now - new Date(lastExportDate)) > 24 * 60 * 60 * 1000) {
+    console.log("Exécution de l'export automatique...");
+    
+    // Exporter vers export_daily.json
+    exportDataToJson('export_daily.json', true);
+    
+    // Mettre à jour la date du dernier export automatique
+    localStorage.setItem('lastAutomaticExportDate', now.toISOString());
+    
+    console.log("Export automatique terminé:", now.toLocaleString());
+  } else {
+    console.log("Pas besoin d'export automatique, dernier export:", new Date(lastExportDate).toLocaleString());
+  }
+}
+
+function exportDataToJson(filename, isAutomatic = false) {
+  // Préparer les données pour l'export
+  const data = {
+    clients: clients,
+    upsells: upsells,
+    successPacks: successPacks,
+    renews: renews,
+    targets: targets,
+    settings: settings,
+    lastUpdated: new Date().toISOString()
+  };
+  
+  // Convertir en JSON
+  const jsonData = JSON.stringify(data, null, 2);
+  
+  // Créer et télécharger le fichier
+  const blob = new Blob([jsonData], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  
+  // Afficher une notification
+  Toastify({
+    text: isAutomatic ? `Export automatique vers ${filename}` : `Données exportées vers ${filename}`,
+    duration: 3000,
+    gravity: "top",
+    position: "right",
+    backgroundColor: "#4caf50"
+  }).showToast();
+}
+
+/***********************************
+ * Rafraîchissement automatique des taux de change
+ ***********************************/
+function setupAutomaticRatesRefresh() {
+  // Configurer la vérification périodique (toutes les 24h)
+  const scheduleNextRefresh = function() {
+    const delay = 24 * 60 * 60 * 1000; // 24 heures en millisecondes
+    console.log(`Prochain rafraîchissement des taux de change programmé dans: ${delay/1000/60/60} heures`);
+    
+    setTimeout(function() {
+      checkAndRefreshRates();
+      scheduleNextRefresh(); // Programmer la prochaine vérification
+    }, delay);
+  };
+  
+  // Fonction pour vérifier si un rafraîchissement est nécessaire
+  const checkAndRefreshRates = function() {
+    const storedTimestamp = localStorage.getItem('conversionRatesTimestamp');
+    const now = Date.now();
+    
+    // Si pas de taux stockés ou si les taux datent de plus de 24 heures
+    if (!storedTimestamp || (now - parseInt(storedTimestamp, 10)) >= 24 * 60 * 60 * 1000) {
+      console.log("Rafraîchissement automatique des taux de change...");
+      fetchConversionRates(function() {
+        console.log("Rafraîchissement des taux terminé:", new Date().toLocaleString());
+      }, true);
+    } else {
+      console.log("Pas besoin de rafraîchir les taux, dernier rafraîchissement:", new Date(parseInt(storedTimestamp, 10)).toLocaleString());
+    }
+  };
+  
+  // Lancer le cycle
+  scheduleNextRefresh();
 }
 
 
