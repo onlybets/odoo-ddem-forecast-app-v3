@@ -304,7 +304,7 @@ $(document).ready(function() {
     // Export manuel - utilise le nom de fichier avec la date
     const today = new Date();
     const dateStr = today.toISOString().split('T')[0];
-    exportDataToJson(`odoo-cstd-export-${dateStr}.json`, false);
+    exportDataToJson(`odoo-cstd-export-manual-${dateStr}.json`, false);
   });
 
 });
@@ -1448,13 +1448,14 @@ function checkAndExportIfNeeded() {
   // Récupérer la date du dernier export automatique
   const lastExportDate = localStorage.getItem('lastAutomaticExportDate');
   const now = new Date();
+  const dateStrAuto = now.toISOString().split('T')[0];
   
   // Si aucun export n'a été fait ou si le dernier export date de plus de 24 heures
   if (!lastExportDate || (now - new Date(lastExportDate)) > 24 * 60 * 60 * 1000) {
     console.log("Exécution de l'export automatique...");
     
     // Exporter vers export_daily.json
-    exportDataToJson('export_daily.json', true);
+    exportDataToJson(`odoo-cstd-export-auto-${dateStrAuto}.json`, true);
     
     // Mettre à jour la date du dernier export automatique
     localStorage.setItem('lastAutomaticExportDate', now.toISOString());
