@@ -309,6 +309,66 @@ $(document).ready(function() {
     exportDataToJson(`odoo-cstd-export-manual-${dateStr}.json`, false);
   });
   
+  // Import JSON
+  $('#importJsonBtn').click(function() {
+    const fileInput = document.getElementById('importJsonFile');
+    if (!fileInput || fileInput.files.length === 0) {
+      Toastify({
+        text: "Please select a file first",
+        duration: 3000,
+        gravity: "top",
+        position: "right",
+        backgroundColor: "#f44336"
+      }).showToast();
+      return;
+    }
+    
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const data = JSON.parse(e.target.result);
+        // Vérifie que la structure est correcte
+        if (!data.clients || !data.upsells || !data.successPacks || !data.renews || !data.targets || !data.settings) {
+          throw new Error("Invalid data structure");
+        }
+        
+        // Demande confirmation avant d'importer
+        if (confirm("This will replace all your current data. Are you sure you want to proceed?")) {
+          // Enregistre les données dans localStorage
+          localStorage.setItem('clients', JSON.stringify(data.clients));
+          localStorage.setItem('upsells', JSON.stringify(data.upsells));
+          localStorage.setItem('successPacks', JSON.stringify(data.successPacks));
+          localStorage.setItem('renews', JSON.stringify(data.renews));
+          localStorage.setItem('targets', JSON.stringify(data.targets));
+          localStorage.setItem('settings', JSON.stringify(data.settings));
+          
+          Toastify({
+            text: "Data successfully imported",
+            duration: 3000,
+            gravity: "top",
+            position: "right",
+            backgroundColor: "#4caf50"
+          }).showToast();
+          
+          // Recharger la page pour afficher les données importées
+          setTimeout(function() {
+            location.reload();
+          }, 1500);
+        }
+      } catch (err) {
+        Toastify({
+          text: "Import error: " + err.message,
+          duration: 3000,
+          gravity: "top",
+          position: "right",
+          backgroundColor: "#f44336"
+        }).showToast();
+      }
+    };
+    reader.readAsText(file);
+  });
+  
   // Événement pour l'activation/désactivation de l'export automatique
   $('#enableAutoExport').change(function() {
     const isEnabled = $(this).is(':checked');

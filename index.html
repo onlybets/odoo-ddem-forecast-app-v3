@@ -413,8 +413,9 @@
                 </div>
               </div>
               <div class="form-group border p-3 mb-3">
-                <label for="importJson" class="mr-2">⬇️ Import JSON:</label>
-                <a href="import_json.html" class="btn btn-primary btn-sm ml-2">Go to import</a>
+                <label for="importJsonFile" class="mr-2">⬇️ Import JSON:</label>
+                <input type="file" id="importJsonFile" accept=".json" class="d-inline-block" style="width: auto;"/>
+                <button id="importJsonBtn" class="btn btn-primary btn-sm ml-2">Import Data</button>
               </div>
               <div class="border p-3 mb-3">
                 <p>💲 All non-USD amounts are automatically converted to USD at the time of update.</p>
