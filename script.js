@@ -140,8 +140,10 @@ $(document).ready(function() {
     populateMonthSelect();
     updateTargetInputs();
     
-    // Démarrer le système d'export automatique périodique
-    setupAutomaticExport();
+    // Démarrer le système d'export automatique périodique seulement si activé
+    if (settings.enableAutoExport !== false) { // Activé par défaut
+      setupAutomaticExport();
+    }
     
     // Démarrer le système de rafraîchissement automatique des taux de change
     setupAutomaticRatesRefresh();
@@ -306,6 +308,34 @@ $(document).ready(function() {
     const dateStr = today.toISOString().split('T')[0];
     exportDataToJson(`odoo-cstd-export-manual-${dateStr}.json`, false);
   });
+  
+  // Événement pour l'activation/désactivation de l'export automatique
+  $('#enableAutoExport').change(function() {
+    const isEnabled = $(this).is(':checked');
+    settings.enableAutoExport = isEnabled;
+    saveSettings();
+    
+    // Si activé et pas déjà en cours, démarrer l'export automatique
+    if (isEnabled && !window.autoExportActive) {
+      setupAutomaticExport();
+      Toastify({
+        text: "Automatic export enabled",
+        duration: 3000,
+        gravity: "top",
+        position: "right",
+        backgroundColor: "#4caf50"
+      }).showToast();
+    } else if (!isEnabled) {
+      window.autoExportActive = false;
+      Toastify({
+        text: "Automatic export disabled",
+        duration: 3000,
+        gravity: "top",
+        position: "right",
+        backgroundColor: "#ff9800"
+      }).showToast();
+    }
+  });
 
 });
 
@@ -340,8 +370,23 @@ function saveData() {
 
 function loadSettings() {
   const s = localStorage.getItem('settings');
-  if (!s) settings = {};
-  else settings = JSON.parse(s);
+  if (!s) {
+    // Paramètres par défaut
+    settings = {
+      enableAutoExport: true // Activé par défaut
+    };
+  } else {
+    settings = JSON.parse(s);
+  }
+  
+  // Mettre à jour l'état de la case à cocher
+  if ($('#enableAutoExport').length) {
+    $('#enableAutoExport').prop('checked', settings.enableAutoExport !== false);
+  }
+}
+
+function saveSettings() {
+  localStorage.setItem('settings', JSON.stringify(settings));
 }
 
 /***********************************
@@ -1426,17 +1471,31 @@ function getQuarterLabel(monthKey) {
  * Export automatique périodique
  ***********************************/
 function setupAutomaticExport() {
+  // Marquer que l'export automatique est actif
+  window.autoExportActive = true;
+  
   // Première vérification immédiate
   checkAndExportIfNeeded();
   
   // Configurer la vérification périodique (toutes les 24h)
   const scheduleNextExport = function() {
+    // Si l'export auto a été désactivé entre-temps, ne pas programmer le prochain
+    if (settings.enableAutoExport === false) {
+      window.autoExportActive = false;
+      return;
+    }
+    
     const delay = 24 * 60 * 60 * 1000; // 24 heures en millisecondes
-    console.log(`Prochaine vérification d'export automatique programmée dans: ${delay/1000/60/60} heures`);
+    console.log(`Next automatic export check scheduled in: ${delay/1000/60/60} hours`);
     
     setTimeout(function() {
-      checkAndExportIfNeeded();
-      scheduleNextExport(); // Programmer la prochaine vérification
+      // Vérifier à nouveau au moment de l'exécution si l'export auto est toujours activé
+      if (settings.enableAutoExport !== false) {
+        checkAndExportIfNeeded();
+        scheduleNextExport(); // Programmer la prochaine vérification
+      } else {
+        window.autoExportActive = false;
+      }
     }, delay);
   };
   
@@ -1452,7 +1511,7 @@ function checkAndExportIfNeeded() {
   
   // Si aucun export n'a été fait ou si le dernier export date de plus de 24 heures
   if (!lastExportDate || (now - new Date(lastExportDate)) > 24 * 60 * 60 * 1000) {
-    console.log("Exécution de l'export automatique...");
+    console.log("Running automatic export...");
     
     // Exporter vers export_daily.json
     exportDataToJson(`odoo-cstd-export-auto-${dateStrAuto}.json`, true);
@@ -1460,9 +1519,9 @@ function checkAndExportIfNeeded() {
     // Mettre à jour la date du dernier export automatique
     localStorage.setItem('lastAutomaticExportDate', now.toISOString());
     
-    console.log("Export automatique terminé:", now.toLocaleString());
+    console.log("Automatic export completed:", now.toLocaleString());
   } else {
-    console.log("Pas besoin d'export automatique, dernier export:", new Date(lastExportDate).toLocaleString());
+    console.log("No need for automatic export, last export:", new Date(lastExportDate).toLocaleString());
   }
 }
 
@@ -1495,7 +1554,7 @@ function exportDataToJson(filename, isAutomatic = false) {
   
   // Afficher une notification
   Toastify({
-    text: isAutomatic ? `Export automatique vers ${filename}` : `Données exportées vers ${filename}`,
+    text: isAutomatic ? `Automatic export to ${filename}` : `Data exported to ${filename}`,
     duration: 3000,
     gravity: "top",
     position: "right",

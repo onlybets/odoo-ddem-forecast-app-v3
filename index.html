@@ -406,6 +406,11 @@
               <div class="form-group border p-3 mb-3">
                 <label for="exportJson" class="mr-2">⬆️ Export JSON:</label>
                 <button id="exportJsonBtn" class="btn btn-primary btn-sm ml-2">Export Data</button>
+                <div class="custom-control custom-switch mt-2">
+                  <input type="checkbox" class="custom-control-input" id="enableAutoExport" checked>
+                  <label class="custom-control-label" for="enableAutoExport">Enable daily automatic export</label>
+                  <small class="form-text text-muted">Automatic export occurs once a day while the application is open.</small>
+                </div>
               </div>
               <div class="form-group border p-3 mb-3">
                 <label for="importJson" class="mr-2">⬇️ Import JSON:</label>
