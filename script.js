@@ -297,6 +297,14 @@ $(document).ready(function() {
     renderSuccessPackTable();
     renderRenewTable();
     updateDashboard();
+
+    // Vider les champs Target à chaque changement de mois
+    $('#targetMonth').on('change', function() {
+      $('#recurringTargetInput').val('');
+      $('#recurringForecastInput').val('');
+      $('#nonRecurringTargetInput').val('');
+      $('#nonRecurringForecastInput').val('');
+    });
   });
 
   /***********************************
@@ -1226,18 +1234,11 @@ function populateMonthSelect() {
 }
 
 function updateTargetInputs() {
-  const m = $('#targetMonth').val();
-  if (!m || !targets[m]) {
-    $('#recurringTargetInput').val('');
-    $('#recurringForecastInput').val('');
-    $('#nonRecurringTargetInput').val('');
-    $('#nonRecurringForecastInput').val('');
-    return;
-  }
-  $('#recurringTargetInput').val(targets[m].recurring || '');
-  $('#recurringForecastInput').val(targets[m].recurringForecast || '');
-  $('#nonRecurringTargetInput').val(targets[m].nonRecurring || '');
-  $('#nonRecurringForecastInput').val(targets[m].nonRecurringForecast || '');
+  // Toujours vider les champs à chaque appel
+  $('#recurringTargetInput').val('');
+  $('#recurringForecastInput').val('');
+  $('#nonRecurringTargetInput').val('');
+  $('#nonRecurringForecastInput').val('');
 }
 
 function saveTarget() {
@@ -1256,6 +1257,11 @@ function saveTarget() {
     backgroundColor: "#4caf50"
   }).showToast();
   updateDashboard();
+  // Vider les champs après sauvegarde
+  $('#recurringTargetInput').val('');
+  $('#recurringForecastInput').val('');
+  $('#nonRecurringTargetInput').val('');
+  $('#nonRecurringForecastInput').val('');
 }
 
 /***********************************
@@ -1708,11 +1714,13 @@ function handleFile(file) {
           hosting: "",
           amount: 0,
           currency: "USD",
-          frequency: "",
+          frequency: "Yearly (1)",
           users: 0,
-          nextRenewalDate: "",
-          status: "",
-          odooLink: ""
+          nextRenewalDate: "2050-05-15",
+          status: "In Progress",
+          odooLink: "",
+          convertedAmount: 0,
+          conversionRate: 1
         });
         
         const ws = wb.worksheets[0];
