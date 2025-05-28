@@ -629,6 +629,9 @@ function renderClientTable() {
     let groupTbody = card.find('.group-tbody');
     groups[key].forEach(cli => {
       let tr = $('<tr></tr>');
+      // Ajout de la classe selon le statut
+      if (cli.status === "Churned") tr.addClass("row-churned");
+      else if (cli.status === "Paused") tr.addClass("row-paused");
       let tdRenew = $('<td></td>');
       let renewBtn = $('<button class="btn btn-sm btn-success" title="Renew">♻️</button>');
       renewBtn.click(function() {

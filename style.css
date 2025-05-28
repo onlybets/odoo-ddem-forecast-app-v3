@@ -164,3 +164,11 @@ header h1 {
   font-size: 2rem;
   font-weight: bold;
 }
+
+/* Couleurs de fond pour statuts clients */
+.row-churned {
+  background-color: #ffe5e5 !important;
+}
+.row-paused {
+  background-color: #fffbe5 !important;
+}
