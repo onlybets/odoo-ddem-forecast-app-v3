@@ -5,8 +5,6 @@
 [![macOS](https://img.shields.io/badge/macOS-compatible-brightgreen?logo=apple&logoColor=white)](https://www.apple.com/macos/)
 [![Windows](https://img.shields.io/badge/Windows-compatible-brightgreen?logo=windows&logoColor=white)](https://www.microsoft.com/windows/)
 [![Linux](https://img.shields.io/badge/Linux-compatible-brightgreen?logo=linux&logoColor=white)](https://www.linux.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Odoo](https://img.shields.io/badge/Powered_by-Odoo-875A7B?logo=odoo&logoColor=white)](https://www.odoo.com)
 
 </div>
 
