@@ -586,20 +586,49 @@ function renderClientTable() {
   if (groups["No Renewal Date"]) keys.push("No Renewal Date");
   let accordion = $('<div id="clientAccordion"></div>');
   let currentMonthKey = getMonthKey(getSFLocalDateString());
-  keys.forEach((key, idx) => {
+    keys.forEach((key, idx) => {
     let isCurrent = key === currentMonthKey;
     let dateLabel = (key === "No Renewal Date") ? "No Renewal Date" : formatMonthLabel(key);
     let headingId = `heading-${key}`;
     let collapseId = `collapse-${key}`;
+
+    // Calcul des totaux pour ce groupe
+    let groupClients = groups[key];
+    // Utilise calculateAddedToTarget sur convertedAmount et frequency
+    function getTotal(clientsArr) {
+      return clientsArr.reduce((sum, cli) => {
+        // On ignore les lignes sans convertedAmount ou frequency
+        if (typeof cli.convertedAmount !== "number" || !cli.frequency) return sum;
+        return sum + calculateAddedToTarget(cli.convertedAmount, cli.frequency);
+      }, 0);
+    }
+    let churnedClients = groupClients.filter(cli => cli.status === "Churned");
+    let activeClients = groupClients.filter(cli => cli.status !== "Churned");
+    let totalAll = getTotal(groupClients);
+    let totalChurned = getTotal(churnedClients);
+    let totalActive = getTotal(activeClients);
+
+    // Bloc HTML pour les totaux alignés à droite
+    let totalsHtml = `
+      <div style="float:right; display:flex; gap:1.5em; align-items:center;">
+        <span style="color:#d32f2f; font-weight:500;">Total churned: <span style="color:#d32f2f; font-weight:500;">${totalChurned.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</span></span>
+        <span style="color:#222;">Total active: <span style="color:#222;">${totalActive.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</span></span>
+        <span style="font-weight:bold; color:#111;">Total: <span style="font-weight:bold; color:#111;">${totalAll.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</span></span>
+      </div>
+    `;
+
     let card = $(`
       <div class="card">
         <div class="card-header" id="${headingId}">
-          <h5 class="mb-0">
-            <button class="btn btn-link" data-toggle="collapse" data-target="#${collapseId}"
-              aria-expanded="${isCurrent ? 'true' : 'false'}" aria-controls="${collapseId}">
-              ${dateLabel}
-            </button>
-          </h5>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h5 class="mb-0" style="margin-bottom:0;">
+              <button class="btn btn-link" data-toggle="collapse" data-target="#${collapseId}"
+                aria-expanded="${isCurrent ? 'true' : 'false'}" aria-controls="${collapseId}">
+                ${dateLabel}
+              </button>
+            </h5>
+            ${totalsHtml}
+          </div>
         </div>
         <div id="${collapseId}" class="collapse ${isCurrent ? 'show' : ''}">
           <div class="card-body">
